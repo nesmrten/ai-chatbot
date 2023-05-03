@@ -1,0 +1,21 @@
+{
+  "tag": "BIG_talk",
+  "patterns": [
+      "What is the meaning of life?",
+      "What is the purpose of existence?",
+      "What is consciousness?",
+      "Do we have free will or is everything predetermined?",
+      "What is the nature of reality?",
+      "What is the relationship between the mind and the body?",
+      "What is the role of art and beauty in human experience?",
+      "What is the impact of technology on humanity?",
+      "How should we live our lives?",
+      "What is the role of love and relationships in our lives?"
+  ],
+  "responses": [
+      "These are big questions that humans have been asking for centuries. There is no single answer or explanation, but many different perspectives and theories. What do you think?",
+      "That's a profound question. It's something that people have been pondering for centuries. I think the answer might be different for everyone. What are your thoughts?",
+      "These are deep and complex topics that have puzzled philosophers and scientists for ages. I don't have all the answers, but I'm happy to discuss them with you. What do you think?",
+      "Those are some of the biggest and most fundamental questions we can ask about ourselves and the universe. There is no easy answer, but it's worth exploring these topics and trying to find some meaning in them. What are your thoughts?"
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "intent": "search",
+  "examples": [
+      "duckduckgo {query}",
+      "search for {query}",
+      "search {query}",
+      "look up {query}",
+      "find information about {query}",
+      "search the web for {query}",
+      "google {query}",
+      "bing {query}",
+      "yahoo {query}"
+      
+  ],
+  "actions": [
+
+      {
+          "tag": "search_duckduckgo",
+          "patterns": ["search for {query} on duckduckgo", "look up {query} on duckduckgo", "duckduckgo search {query}"],
+          "responses": ["Here are the search results for {query}: {duckduckgo_search_url}{query}"]
+      },
+      {
+          "engine": "google",
+          "type": "web",
+          "url": "https://www.google.com/search?q={query}"
+      },
+      {
+          "engine": "bing",
+          "type": "web",
+          "url": "https://www.bing.com/search?q={query}"
+      },
+      {
+          "engine": "yahoo",
+          "type": "web",
+          "url": "https://search.yahoo.com/search?q={query}"
+      }
+  ]
+}

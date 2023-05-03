@@ -1,0 +1,31 @@
+{
+  "tag": "wikipedia",
+  "patterns": [
+      "search wikipedia for {query}",
+      "find information about {query} on wikipedia",
+      "what does wikipedia say about {query}"
+  ],
+  "responses": [
+      "Here is some information I found on Wikipedia:",
+      "According to Wikipedia:",
+      "I found this on Wikipedia:"
+  ],
+  "api_action": "query",
+  "api_url": "https://en.wikipedia.org/w/api.php",
+  "api_params": {
+      "action": "query",
+      "format": "json",
+      "list": "search",
+      "srsearch": "{query}",
+      "srprop": "snippet",
+      "utf8": "1",
+      "formatversion": "2"
+  },
+  "output_format": "text",
+  "output_fields": [
+      "title",
+      "snippet",
+      "url"
+  ],
+  "output_template": "{title}\n\n{snippet}\n\n{url}"
+}

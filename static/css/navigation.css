@@ -1,0 +1,32 @@
+.navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logo img {
+  height: 50px;
+}
+
+.navigation li {
+  display: inline-block;
+  margin-left: 20px;
+}
+
+.navigation li:first-child {
+  margin-left: 0;
+}
+
+.navigation li a {
+  text-decoration: none;
+  font-size: 18px;
+  color: #007bff;
+}
+
+.navigation li a:hover {
+  color: #0056b3;
+}
+

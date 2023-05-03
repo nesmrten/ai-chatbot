@@ -1,0 +1,19 @@
+{
+  "intent_name": "get_weather",
+  "examples": [
+      "What's the weather like today?",
+      "Can you tell me the forecast for tomorrow?",
+      "What's the temperature in Los Angeles?",
+      "Is it going to rain today?",
+      "What's the current weather conditions?",
+      "How hot is it outside right now?"
+  ],
+  "responses": [
+      "Let me check for you. In Los Angeles, it's currently 70 degrees and sunny.",
+      "Sure thing! It looks like it's going to be mostly sunny tomorrow with a high of 75 degrees.",
+      "Currently in your location it's 72 degrees with clear skies.",
+      "Looks like there's a chance of rain later today. You may want to bring an umbrella!",
+      "Right now it's 68 degrees and mostly cloudy.",
+      "It's currently 80 degrees and partly cloudy outside."
+  ]
+}

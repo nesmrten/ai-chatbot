@@ -1,0 +1,90 @@
+{
+  "intents": [
+    {
+      "tag": "greeting",
+      "patterns": [
+        "Hello",
+        "Hi",
+        "Hey there",
+        "Hiya",
+        "Greetings",
+        "Good morning",
+        "Good afternoon",
+        "Good evening"
+      ],
+      "responses": [
+        "Hello! How can I help you?",
+        "Hi! What can I assist you with?",
+        "Hey there! What can I do for you?",
+        "Hiya! What do you need help with?",
+        "Greetings! How can I assist you?",
+        "Good morning! What can I help you with?",
+        "Good afternoon! How may I assist you?",
+        "Good evening! What do you need help with?"
+      ]
+    },
+    {
+      "tag": "goodbye",
+      "patterns": [
+        "Bye",
+        "Goodbye",
+        "See you later",
+        "Catch you later",
+        "Later",
+        "See ya",
+        "Adios",
+        "Ciao"
+      ],
+      "responses": [
+        "Goodbye! Have a nice day!",
+        "See you later! Take care!",
+        "Catch you later! Bye!",
+        "Later! Have a great day!",
+        "See ya! Take care!",
+        "Adios! Have a good one!",
+        "Ciao! Have a great day!"
+      ]
+    },
+    {
+      "tag": "programming",
+      "patterns": [
+        "Can you program something for me?",
+        "I need an application built",
+        "Can you create a software for me?",
+        "I need help with coding",
+        "Can you build an app for me?",
+        "Can you make a website for me?",
+        "I want to automate a task",
+        "Can you help me with software development?"
+      ],
+      "responses": [
+        "Yes, I can definitely help you with programming. What do you need help with specifically?",
+        "Sure thing! What kind of software/application do you want me to build?",
+        "Absolutely! What programming language do you want me to use?",
+        "Of course! Let me know what kind of programming help you need.",
+        "Definitely! What is your app/website about?",
+        "Of course! What kind of task do you want to automate?",
+        "Absolutely! Tell me more about your software development needs."
+      ]
+    },
+    {
+      "tag": "thanks",
+      "patterns": [
+        "Thank you",
+        "Thanks",
+        "Thank you so much",
+        "Thanks a lot",
+        "Thank you very much",
+        "Much appreciated"
+      ],
+      "responses": [
+        "You're welcome!",
+        "No problem, happy to help!",
+        "Glad I could be of assistance!",
+        "Anytime!",
+        "My pleasure!",
+        "You got it!"
+      ]
+    }
+  ]
+}

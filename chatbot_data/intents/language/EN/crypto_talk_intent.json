@@ -1,0 +1,39 @@
+{
+  "intents": [
+    {
+      "tag": "greeting",
+      "patterns": ["Hi", "Hello", "Hey", "Hi there", "Greetings"],
+      "responses": ["Hello, how can I help you with cryptocurrency today?"]
+    },
+    {
+      "tag": "goodbye",
+      "patterns": ["Bye", "See you later", "Goodbye", "Thanks for your help", "Thanks for the information"],
+      "responses": ["You're welcome. Goodbye!"]
+    },
+    {
+      "tag": "options",
+      "patterns": ["What can you do?", "What are your abilities?", "What do you know about?", "What do you specialize in?"],
+      "responses": ["I can help you with cryptocurrency related questions, such as buying and selling cryptocurrencies, understanding blockchain technology, and staying up-to-date on the latest trends in the industry."]
+    },
+    {
+      "tag": "buy",
+      "patterns": ["How can I buy cryptocurrency?", "What's the best way to buy crypto?", "Where can I buy cryptocurrency?"],
+      "responses": ["There are many ways to buy cryptocurrency, including through cryptocurrency exchanges, peer-to-peer marketplaces, and Bitcoin ATMs. It's important to do your research and choose a reputable platform before making a purchase."]
+    },
+    {
+      "tag": "sell",
+      "patterns": ["How can I sell cryptocurrency?", "What's the best way to sell crypto?", "Where can I sell cryptocurrency?"],
+      "responses": ["You can sell cryptocurrency through many of the same platforms that you use to buy it, such as cryptocurrency exchanges and peer-to-peer marketplaces. Again, it's important to do your research and choose a reputable platform before making a sale."]
+    },
+    {
+      "tag": "blockchain",
+      "patterns": ["What is blockchain technology?", "How does blockchain work?", "Why is blockchain important?"],
+      "responses": ["Blockchain technology is a decentralized ledger system that records transactions on a public database. It's important because it offers a secure and transparent way to transfer assets, and has many potential applications beyond cryptocurrency."]
+    },
+    {
+      "tag": "trends",
+      "patterns": ["What are the latest trends in cryptocurrency?", "What's happening in the crypto world?", "What are people talking about in the cryptocurrency industry?"],
+      "responses": ["There are many exciting developments happening in the cryptocurrency industry, including the rise of decentralized finance (DeFi), the growth of non-fungible tokens (NFTs), and the increasing adoption of cryptocurrencies by mainstream financial institutions."]
+    }
+  ]
+}

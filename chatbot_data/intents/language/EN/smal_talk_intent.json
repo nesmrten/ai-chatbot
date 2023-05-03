@@ -1,0 +1,89 @@
+{
+  "intents": [
+      {
+          "tag": "greeting",
+          "patterns": [
+              "Hi",
+              "Hey",
+              "Hello",
+              "Howdy",
+              "Yo"
+          ],
+          "responses": [
+              "Hello there!",
+              "Hi! How can I help you today?",
+              "Hey, what's up?",
+              "Greetings! How may I assist you?",
+              "Hi, how are you?"
+          ]
+      },
+      {
+          "tag": "farewell",
+          "patterns": [
+              "Bye",
+              "Goodbye",
+              "See ya",
+              "Later",
+              "Adios"
+          ],
+          "responses": [
+              "Goodbye! Have a great day!",
+              "See you later!",
+              "Take care!",
+              "Bye for now!",
+              "Until next time!"
+          ]
+      },
+      {
+          "tag": "thanks",
+          "patterns": [
+              "Thank you",
+              "Thanks",
+              "Appreciate it",
+              "Gracias",
+              "Merci"
+          ],
+          "responses": [
+              "You're welcome!",
+              "No problem, happy to help!",
+              "Glad to be of assistance!",
+              "Anytime!",
+              "Don't mention it!"
+          ]
+      },
+      {
+          "tag": "compliment",
+          "patterns": [
+              "You're great",
+              "You're amazing",
+              "You're the best",
+              "I love you",
+              "You're so cool"
+          ],
+          "responses": [
+              "Thank you so much!",
+              "You're too kind!",
+              "Aww, shucks!",
+              "You're pretty awesome yourself!",
+              "I appreciate the compliment!"
+          ]
+      },
+      {
+          "tag": "weather",
+          "patterns": [
+              "What's the weather like?",
+              "What's the temperature?",
+              "Is it going to rain?",
+              "Will it be sunny?",
+              "How's the weather today?"
+          ],
+          "responses": [
+              "I'm not sure, you can check your local weather app.",
+              "I don't know, sorry.",
+              "It's cloudy here, but I'm not sure about the rest of the area.",
+              "I'm not a meteorologist, but I hope it's nice wherever you are!",
+              "I'm not equipped to answer that, sorry!"
+          ]
+      }
+  ]
+}

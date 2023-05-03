@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Chat Page
+{% endblock %}
+
+{% block content %}
+  <div class="chat-container">
+    <div class="chat-header">
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}" />
+      <h2>Chat</h2>
+    </div>
+    <div class="chat-body">
+      <ul class="messages">
+        <li class="message">
+          <div class="message-header">
+            <span class="message-time">12:00</span>
+            <span class="message-sender">You</span>
+          </div>
+          <div class="message-content">Hello, how can I help you today?</div>
+        </li>
+        <li class="message">
+          <div class="message-header">
+            <span class="message-time">12:05</span>
+            <span class="message-sender">Bot</span>
+          </div>
+          <div class="message-content">Hi, I'm here to help you with your programming questions.</div>
+        </li>
+      </ul>
+    </div>
+    <div class="chat-footer">
+      <form class="message-form">
+        <input type="text" placeholder="Type your message here..." />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  </div>
+{% endblock %}
