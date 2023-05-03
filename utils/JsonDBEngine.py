@@ -87,10 +87,9 @@ class JsonDbEngine:
 
                 for doc in collection:
                     value = doc.get(field)
-                    if value is not,
-
-            # add value to index
-                    self.indexes[collection_name][field].add(value)
+                    if value is None:
+                        # add value to index
+                        self.indexes[collection_name][field].add(value)
 
     def invalidate_cache(self, collection_name):
         keys_to_delete = []

@@ -5,10 +5,6 @@ from collections import Counter
 import torch
 from torch.utils.data import Dataset, DataLoader
 
-
-
-
-
 class CornellMovieDialogsDataset(Dataset):
     def __init__(self, data_folder, max_length=20):
         self.max_length = max_length
@@ -115,7 +111,7 @@ class CornellMovieDialogsDataset(Dataset):
           encoded_answers.append(encoded_answer)
 
       return encoded_questions, encoded_answers
-                                          
+    
     def pad_data(self, encoded_questions, encoded_answers, max_length):
       """
       Pad questions and answers sequences to make them of equal length.
@@ -131,13 +127,4 @@ class CornellMovieDialogsDataset(Dataset):
               padded_answers.append(padded_answer)
 
       return padded_questions, padded_answers
-    
-data_folder = "datasets/cornell_movie_dialogs_corpus/"
-dataset = CornellMovieDialogsDataset(data_folder, max_length=20)
-dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
-
-for batch in dataloader:
-    padded_questions, padded_answers = batch
-    print(padded_questions)
-    print(padded_answers)
 

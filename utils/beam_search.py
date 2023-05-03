@@ -72,35 +72,34 @@ def beam_search(decoder, input_seq, init_hidden, max_length, beam_size):
             else:
                 top_k_seqs.append(seq)
 
-        # Remove the current top sequence from
-# Remove the current top sequence from the heap
-current_score, _, current_sequence = heappop(heap)
+        # Remove the current top sequence from the heap
+        current_score, _, current_sequence = heappop(heap)
 
-# If the current sequence ends with the end token, add it to the completed sequences
-if current_sequence[-1] == end_token:
-    completed_sequences.append((current_score, current_sequence))
-    continue
+        # If the current sequence ends with the end token, add it to the completed sequences
+        if current_sequence[-1] == end_token:
+            completed_sequences.append((current_score, current_sequence))
+            continue
 
-# Generate the next words in the sequence
-next_words = generate_next_words(current_sequence, model, device, vocab, beam_width)
+        # Generate the next words in the sequence
+        next_words = generate_next_words(current_sequence, model, device, vocab, beam_width)
 
-# Add the next sequences to the heap
-for next_word in next_words:
-    score, _, sequence = current_score, current_sequence.copy(), current_sequence.copy()
-    score += next_word[0]
-    sequence.append(next_word[1])
-    heappush(heap, (score, next_word[1], sequence))
+        # Add the next sequences to the heap
+        for next_word in next_words:
+            score, _, sequence = current_score, current_sequence.copy(), current_sequence.copy()
+            score += next_word[0]
+            sequence.append(next_word[1])
+            heappush(heap, (score, next_word[1], sequence))
 
-# Keep only the top-k sequences from the heap
-while len(heap) > beam_width:
-    heappop(heap)
+        # Keep only the top-k sequences from the heap
+        while len(heap) > beam_width:
+            heappop(heap)
 
-# If there are no more sequences on the heap, stop the search
-if len(heap) == 0:
-    break
+        # If there are no more sequences on the heap, stop the search
+        if len(heap) == 0:
+            break
 
-# Get the top sequence from the heap
-top_sequence = heappop(heap)[2]
+        # Get the top sequence from the heap
+        top_sequence = heappop(heap)[2]
 
-# Add the top sequence to the completed sequences
-completed_sequences.append((current_score, top_sequence))
+        # Add the top sequence to the completed sequences
+        completed_sequences.append((current_score, top_sequence))

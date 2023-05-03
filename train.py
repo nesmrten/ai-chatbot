@@ -1,72 +1,79 @@
 import torch
 import torch.nn as nn
+import torch.optim as optim
 from torch.utils.data import DataLoader
-from dataset import ChatbotDataset
-from models.seq2seq import Seq2Seq
-from utils.tokenizer import Tokenizer
-from models.config import Config
+from data_loader import CornellMovieDialogsDataset
+from seq2seq_chatbot import Seq2Seq
 
+data_folder = "datasets/cornell_movie_dialogs_corpus/"
+max_length = 20
+batch_size = 32
 
-def preprocess_data(data_dir, vocab_file):
-    # Load tokenizer
-    tokenizer = Tokenizer.load_from_file(vocab_file)
+dataset = CornellMovieDialogsDataset(data_folder, max_length=max_length)
+dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-    # Load the dataset
-    dataset = ChatbotDataset(data_dir, vocab_file)
+input_size = output_size = len(dataset.vocab)
 
-    # Create a DataLoader for the dataset
-    dataloader = DataLoader(dataset, batch_size=Config.BATCH_SIZE, shuffle=True)
+# Define the hyperparameters
+learning_rate = 0.001
+num_epochs = 10
 
-    return tokenizer, dataloader
+# Initialize the model, loss function, and optimizer
+input_size = output_size = len(dataset.vocab)
+hidden_size = 256
+num_layers = 2
+dropout = 0.5
 
+model = Seq2Seq(input_size, hidden_size, output_size, num_layers, dropout)
+criterion = nn.CrossEntropyLoss(ignore_index=dataset.vocab['<PAD>'])
+optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-def train_model(model, tokenizer, dataloader):
-    # Move the model to the device
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model.to(device)
+# Train the model using the dataloader
+for epoch in range(num_epochs):
+    for batch in dataloader:
+        padded_questions, padded_answers = batch
+        questions = padded_questions.to(device)
+        answers = padded_answers.to(device)
 
-    # Define the loss function and optimizer
-    criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters())
+        # Forward pass
+        outputs = model(questions, answers)
 
-    # Train the model
-    for epoch in range(Config.NUM_EPOCHS):
-        running_loss = 0.0
-        for i, (inputs, targets) in enumerate(dataloader):
-            # Move the inputs and targets to the device
-            inputs = inputs.to(device)
-            targets = targets.to(device)
+        # Compute the loss
+        loss = criterion(outputs.view(-1, output_size), answers.view(-1))
 
-            # Zero the parameter gradients
-            optimizer.zero_grad()
+        # Backward and optimize
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
 
-            # Forward pass
-            outputs = model(inputs, targets)
+    print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}')
 
-            # Compute the loss
-            loss = criterion(outputs.view(-1, Config.OUTPUT_SIZE), targets.view(-1))
+# Evaluate the model's performance on a validation set
+validation_dataset = CornellMovieDialogsDataset(data_folder, max_length=20)
+validation_dataloader = DataLoader(validation_dataset, batch_size=32, shuffle=True)
 
-            # Backward pass and optimization
-            loss.backward()
-            optimizer.step()
+total_loss = 0.0
+total_tokens = 0
 
-            # Print statistics
-            running_loss += loss.item()
-            if i % Config.PRINT_INTERVAL == Config.PRINT_INTERVAL - 1:
-                print('[Epoch %d, Batch %d] Loss: %.3f' % (epoch + 1, i + 1, running_loss / Config.PRINT_INTERVAL))
-                running_loss = 0.0
+with torch.no_grad():
+    for batch in validation_dataloader:
+        padded_questions, padded_answers = batch
+        questions = padded_questions.to(device)
+        answers = padded_answers.to(device)
 
-    # Save the trained model
-    torch.save(model.state_dict(), 'models/seq2seq_model.pth')
+        # Forward pass
+        outputs = model(questions, answers)
 
+        # Compute the loss
+        loss = criterion(outputs.view(-1, output_size), answers.view(-1))
 
-if __name__ == '__main__':
-    # Preprocess the data
-    tokenizer, dataloader = preprocess_data('data/cornell_movie-dialogs_corpus', 'data/cornell_movie-dialogs_corpus/vocab.txt')
+        # Update the loss and token counts
+        total_loss += loss.item() * padded_questions.size(0) * padded_questions.size(1)
+        total_tokens += padded_questions.size(0) * padded_questions.size(1)
 
-    # Load the model
-    model = Seq2Seq(tokenizer.vocab_size, Config.EMBEDDING_SIZE, Config.HIDDEN_SIZE, Config.OUTPUT_SIZE,
-                    Config.NUM_LAYERS, dropout=0.5)
+perplexity = torch.exp(torch.tensor(total_loss / total_tokens))
+print(f'Validation Perplexity: {perplexity:.4f}')
 
-    # Train the model
-    train_model(model, tokenizer, dataloader)
+# Save the trained model to disk
+model_path = "seq2seq_chatbot.pt"
+torch.save(model.state_dict(), model_path)
