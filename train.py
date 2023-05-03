@@ -1,91 +1,102 @@
+import argparse
+import json
+import os
+import random
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from data_loader import DataLoader
-import numpy as np
-from seq2seq_chatbot import Seq2Seq
-from chatbot import ChatBot
-from dataset import ChatbotDataset
-from torch.utils.data import DataLoader
+from torch.utils.data import Dataset, DataLoader
+from tqdm import tqdm
+from utils.convert_to_json import convert_to_json
+from seq2seq_chatbot import Encoder, Decoder, Seq2Seq
+from utils.data_feeder import DataFeeder
 from utils.JsonDBEngine import JsonDbEngine
 
-# Initialize the database engine
-db_engine = JsonDbEngine("chatbot_data/db")
 
-chatbot = ChatBot()
+def train(args):
+    print("hey")
+    # Set random seeds for reproducibility
+    random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    torch.cuda.manual_seed_all(args.seed)
+    print("Using device:", device)
+    
+    # Create the data loader
+    data_feeder = DataFeeder(args.db_path)
+    train_data = data_feeder.get_data("train")
+    train_dataset = TextDataset(train_data)
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=args.batch_size,
+        shuffle=True,
+        collate_fn=TextDataset.collate_fn
+    )
+    print("Data loaded")
 
-train_dataset = ChatbotDataset(data_dir='datasets/cornell_movie_dialogs_corpus', vocab_file='vocab_file', 
-                               min_length=5, max_length=20, min_word_freq=5)
-train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
+    # Load the vocabulary
+    with open(args.vocab_path, "r") as f:
+        vocab = json.load(f)
+    print("Vocabulary loaded")
 
-input_size = output_size = len(train_dataset.vocab)
+    # Initialize the encoder and decoder
+    encoder = Encoder(len(vocab), args.hidden_size, args.embedding_size).to(device)
+    decoder = Decoder(len(vocab), args.hidden_size, args.embedding_size).to(device)
+    print("Encoder and decoder initialized")
 
-# Define the hyperparameters
-learning_rate = 0.001
-num_epochs = 10
+    # Initialize the model and optimizer
+    model = Seq2Seq(encoder, decoder).to(device)
+    optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
+    print("Model and optimizer initialized")
 
-# Initialize the model, loss function, and optimizer
-input_size = output_size = len(dataset.vocab)
-hidden_size = 256
-num_layers = 2
-dropout = 0.5
+    # Load the checkpoint if it exists
+    if os.path.exists(args.checkpoint_path):
+        checkpoint = torch.load(args.checkpoint_path, map_location=device)
+        model.load_state_dict(checkpoint["model_state_dict"])
+        optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+        start_epoch = checkpoint["epoch"] + 1
+        print(f"Loaded checkpoint from epoch {start_epoch-1}")
+    else:
+        start_epoch = 0
 
-model = Seq2Seq(input_size, hidden_size, output_size, num_layers, dropout)
-criterion = nn.CrossEntropyLoss(ignore_index=dataset.vocab['<PAD>'])
-optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    # Train the model
+    for epoch in range(start_epoch, args.num_epochs):
+        print(f"Starting epoch {epoch}")
+        total_loss = 0
+        for batch_idx, batch in enumerate(tqdm(train_loader, desc=f"Epoch {epoch}")):
+            # Zero the gradients
+            optimizer.zero_grad()
 
-# Train the model using the dataloader
-for epoch in range(num_epochs):
-    for batch in train_loader:
-        padded_questions, padded_answers = batch
-        padded_questions = np.array([list(q) for q in padded_questions]).astype(np.int32)
-        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
+            # Forward pass
+            input_seq = batch["input"].to(device)
+            target_seq = batch["target"].to(device)
+            output_seq = model(input_seq, target_seq)
 
-        padded_questions_tensor = torch.tensor(padded_questions, dtype=torch.int64).to(device)
-        
-        answers = padded_answers.to(device)
+            # Compute the loss
+            loss = nn.CrossEntropyLoss(ignore_index=vocab["<PAD>"])(output_seq.view(-1, len(vocab)), target_seq.view(-1))
 
-        # Forward pass
-        outputs = model(questions, answers)
+            # Backward pass
+            loss.backward()
 
-        # Compute the loss
-        loss = criterion(outputs.view(-1, output_size), answers.view(-1))
+            # Clip the gradients
+            nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
 
-        # Backward and optimize
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+            # Update the parameters
+            optimizer.step()
 
-    print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}')
-    # Initialize the chatbot
-    chatbot = Chatbot(db_engine)
+            # Add the loss to the total
+            total_loss += loss.item()
 
-# Evaluate the model's performance on a validation set
-validation_dataset = CornellMovieDialogsDataset(data_folder, max_length=20)
-validation_dataloader = DataLoader(validation_dataset, batch_size=32, shuffle=True)
+            # Print the loss
+            if batch_idx % args.print_every == 0:
+                avg_loss = total_loss / (batch_idx + 1)
+                print(f"Batch {batch_idx}: Average loss: {avg_loss:.4f}")
 
-total_loss = 0.0
-total_tokens = 0
-
-with torch.no_grad():
-    for batch in validation_dataloader:
-        padded_questions, padded_answers = batch
-        questions = padded_questions.to(device)
-        answers = padded_answers.to(device)
-
-        # Forward pass
-        outputs = model(questions, answers)
-
-        # Compute the loss
-        loss = criterion(outputs.view(-1, output_size), answers.view(-1))
-
-        # Update the loss and token counts
-        total_loss += loss.item() * padded_questions.size(0) * padded_questions.size(1)
-        total_tokens += padded_questions.size(0) * padded_questions.size(1)
-
-perplexity = torch.exp(torch.tensor(total_loss / total_tokens))
-print(f'Validation Perplexity: {perplexity:.4f}')
-
-# Save the trained model to disk
-model_path = "seq2seq_chatbot.pt"
-torch.save(model.state_dict(), model_path)
+        # Save the checkpoint
+        checkpoint_path = os.path.join(args.checkpoint_dir, f"checkpoint-{epoch}.pt")
+torch.save({
+            "epoch": epoch,
+            "model_state_dict": model.state_dict(),
+            "optimizer_state_dict": optimizer.state_dict(),
+            "loss": total_loss / len(train_loader)
+       
+        })
