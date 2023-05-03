@@ -1,3 +1,5 @@
+import torch
+
 class Config:
     # General settings
     SEED = 42
@@ -28,4 +30,4 @@ class Config:
     TEMPERATURE = 0.5
 
     # Device settings
-    DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+    DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")

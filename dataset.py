@@ -4,12 +4,13 @@ import torch
 from torch.utils.data import Dataset
 from utils.tokenizer import Tokenizer
 
-from dataset import load_cornell_movie_dialogs
+from data_loader import load_cornell_movie_dialogs
 
-dialogs = load_cornell_movie_dialogs()
+
 
 class ChatbotDataset(Dataset):
-    def __init__(self, data_dir, vocab_file):
+    def __init__(self, data_dir, vocab_file, min_length, max_length, min_word_freq=5):
+
         self.data_dir = data_dir
         self.tokenizer = Tokenizer.load_from_file(vocab_file)
         self.input_file = os.path.join(data_dir, "input.txt")

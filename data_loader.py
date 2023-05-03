@@ -5,38 +5,19 @@ from collections import Counter
 import torch
 from torch.utils.data import Dataset, DataLoader
 
-class CornellMovieDialogsDataset(Dataset):
-    def __init__(self, data_folder, max_length=20):
-        self.max_length = max_length
-        conversations_file = os.path.join(data_folder, 'conversations.json')
-        self.conversations = self.load_conversations(conversations_file)
-        self.questions, self.answers = self.preprocess_data(self.conversations)
-        self.vocab = self.create_vocab(self.questions, self.answers)
-        self.encoded_questions, self.encoded_answers = self.encode_data(self.questions, self.answers, self.vocab)
-        self.padded_questions, self.padded_answers = self.pad_data(self.encoded_questions, self.encoded_answers, self.max_length)
-    
-    def __len__(self):
-        return len(self.padded_questions)
-    
-    def __getitem__(self, idx):
-        return self.padded_questions[idx], self.padded_answers[idx]
-    
-    def load_conversations(self, conversations_file):
-        """
-        Load conversation data from a JSON file.
-        Returns a list of tuples containing the conversation pairs.
-        """
-        with open(conversations_file, 'r', encoding='utf-8') as f:
-            conversations = json.load(f)
+def load_cornell_movie_dialogs(data_folder):
+    conversations_file = os.path.join(data_folder, 'conversations.json')
+    with open(conversations_file, 'r', encoding='utf-8') as f:
+        conversations = json.load(f)
+        
+def __init__(self, data_folder, max_length=20):
+    self.max_length = max_length
+    self.conversations = load_cornell_movie_dialogs(data_folder)
+    self.questions, self.answers = self.preprocess_data(self.conversations)
+    self.vocab = self.create_vocab(self.questions, self.answers)
+    self.encoded_questions, self.encoded_answers = self.encode_data(self.questions, self.answers, self.vocab)
+    self.padded_questions, self.padded_answers = self.pad_data(self.encoded_questions, self.encoded_answers, self.max_length)
 
-        pairs = []
-        for conversation in conversations.values():
-            lines = conversation['lines']
-            for i in range(len(lines)-1):
-                pair = (lines[i]['text'], lines[i+1]['text'])
-                pairs.append(pair)
-
-        return pairs
     
     def preprocess_data(self, pairs):
         """

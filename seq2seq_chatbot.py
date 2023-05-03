@@ -59,12 +59,19 @@ class Decoder(nn.Module):
         return prediction, hidden, cell
 
 class Seq2Seq(nn.Module):
-    def __init__(self, encoder, attention, decoder, device):
+    def __init__(self, input_size, hidden_size, output_size, num_layers=1, dropout=0.1, bidirectional=False):
         super(Seq2Seq, self).__init__()
-        self.encoder = encoder
-        self.attention = attention
-        self.decoder = decoder
-        self.device = device
+        self.hidden_size = hidden_size
+        self.num_layers = num_layers
+        self.dropout = dropout
+        self.bidirectional = bidirectional
+
+        self.embedding = nn.Embedding(input_size, hidden_size)
+        self.encoder = nn.GRU(hidden_size, hidden_size, num_layers=num_layers, dropout=dropout, bidirectional=bidirectional)
+        self.decoder = nn.GRU(hidden_size * 2, hidden_size, num_layers=num_layers, dropout=dropout)
+
+        self.fc = nn.Linear(hidden_size, output_size)
+        self.dropout_layer = nn.Dropout(dropout)
 
     def forward(self, input, target, teacher_forcing_ratio=0.5):
         batch_size = input.shape[0]
@@ -74,16 +81,32 @@ class Seq2Seq(nn.Module):
         outputs = torch.zeros(batch_size, max_length, vocab_size).to(self.device)
         encoder_output, hidden = self.encoder(input)
 
+        # change shape of encoder_output from [batch_size, seq_len, hidden_size*num_directions] to [batch_size, hidden_size*num_directions, seq_len]
+        encoder_output = encoder_output.permute(0, 2, 1)
+
+        # create 3D tensor of encoder output for attention
+        encoder_output = encoder_output.unsqueeze(2)
+
         decoder_input = target[:, 0]
         cell = torch.zeros_like(hidden)
         for t in range(1, max_length):
-            output, hidden, cell = self.decoder(decoder_input, hidden, cell, encoder_output)
-            outputs[:, t, :] = output
+            embedded = self.dropout_layer(self.embedding(decoder_input))
+            # change shape of embedded from [batch_size, embedding_size] to [batch_size, embedding_size, 1]
+            embedded = embedded.unsqueeze(2)
+            # apply attention
+            attention_weights = torch.matmul(encoder_output, embedded).squeeze(2)
+            attention_weights = nn.functional.softmax(attention_weights, dim=1)
+            context = torch.matmul(encoder_output.permute(0, 2, 1), attention_weights.unsqueeze(2)).squeeze(2)
+
+            rnn_input = torch.cat((embedded.squeeze(2), context), dim=1)
+            output, hidden = self.decoder(rnn_input.unsqueeze(1), hidden)
+            outputs[:, t, :] = output.squeeze(1)
             teacher_force = random.random() < teacher_forcing_ratio
             top1 = output.argmax(1)
             decoder_input = target[:, t] if teacher_force else top1
 
         return outputs
+
 
 class ChatBot:
     def __init__(self, model_path, db_path, data_path, max_input_len=20, beam_size=3, temperature=0.8):
